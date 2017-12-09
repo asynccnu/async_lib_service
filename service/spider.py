@@ -1,4 +1,5 @@
 import json
+import re
 import asyncio
 import aiohttp
 from bs4 import BeautifulSoup
@@ -30,7 +31,28 @@ async def search_books(keyword):
     }
     async with aiohttp.ClientSession(cookie_jar = aiohttp.CookieJar(unsafe = True), headers = headers) as session:
         async with session.post(search_url, data = post_data, headers = headers) as resp:
-            print(await resp.text())
+            html = await resp.text()
+            soup = BeautifulSoup(html, 'html5lib')
+            book_list_info = soup.find_all('li', class_ = 'book_list_info')
+            book_info_list = []
+            #因为图书简介变成了Ajax动态获取，如果要获取图书简介就需要一个一个页面进去
+            #取得isbn, 之后再一次次请求豆瓣API, 这样耗时了，所以不如直接返回学校
+            #学校图书馆的url, 让用户自己去访问
+            for book_info in book_list_info:
+                if book_info:
+                    book = book_info.find('a', href=re.compile('item.php*')).string
+                    marc_no_link = book_info.find('a').get('href')
+                    marc_no = marc_no_link.split('=')[-1]
+                    book_info_list.append({
+                        'book' : book,
+                        'author' : ' '.join(book_info.p.text.split()[2:-4]),
+                        'publisher': book_info.p.text.split()[-4],
+                        'bid' : 'fff',
+                        'bookurl': 'http://202.114.34.15/opac/' + marc_no_link,
+                        'id' : marc_no,
+                    })
+            print('------------------')
+            print(book_info_list)
 
 
 if __name__ == '__main__':
