@@ -2,6 +2,8 @@ import json
 import re
 import asyncio
 import aiohttp
+import time
+import datetime
 from bs4 import BeautifulSoup
 
 lib_login_test_url = "http://202.114.34.15/reader/redr_info.php"
@@ -11,22 +13,29 @@ lib_detail_url = "http://202.114.34.15/opac/item.php?marc_no=%s"
 lib_renew_url = "http://202.114.34.15/reader/ajax_renew.php"
 douban_url = "https://api.douban.com/v2/book/isbn/%s"
 
+cookie = {'PHPSESSID' : 'ST-1562-eqRFWH0fyzOkvKdSsXZ9-accountccnueducn'}
+headers = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36",
+}
+
+async def test():
+    print('\r\n\r\n' + "[TEST]Start test SearchBooks..." + '\r\n\r\n')
+    await search_books("亲爱的三毛")
+    print('\r\n\r\n' + "[TEST]Start test BookMe..." + '\r\n\r\n')
+    await book_me(cookie)
+
 async def search_books(keyword):
     search_url = lib_search_url
-    headers = {
-                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36",
-    }
-
     post_data = {
        'strSearchType': 'title', 
         'match_flag': 'forward',
-	'historyCount': '1',
+    'historyCount': '1',
         'strText': keyword,
         'doctype': 'ALL',
-	'displaypg': '100',
+    'displaypg': '100',
         'showmode': 'list', 
         'sort': 'CATA_DATE',
-	'orderby': 'desc',
+    'orderby': 'desc',
         'dept': 'ALL' 
     }
     async with aiohttp.ClientSession(cookie_jar = aiohttp.CookieJar(unsafe = True), headers = headers) as session:
@@ -51,11 +60,59 @@ async def search_books(keyword):
                         'bookurl': 'http://202.114.34.15/opac/' + marc_no_link,
                         'id' : marc_no,
                     })
-            print('------------------')
             print(book_info_list)
 
+async def book_me(s):
+    """
+    :function: 图书借阅记录
+    :s: cookie
+    """
+    me_url = lib_me_url
+    async with aiohttp.ClientSession(cookie_jar = aiohttp.CookieJar(unsafe = True), cookies = s, headers = headers) as session:
+        async with session.get(me_url) as resp:
+            html = await resp.text()
+            soup = BeautifulSoup(html, 'html5lib')
+            bids = []
+            a_tags = soup.find_all('a', class_ = 'blue')
+            for a_tag in a_tags:
+                bids.append(a_tag.get('href').split("=")[-1])
+            _my_book_list = soup.find_all('tr')[1:]
+            my_book_list = []
+            #最后两个是垃圾信息，一个是二维码一个是无用信息
+            _my_book_list = _my_book_list[0:2]
+            for index, _book in enumerate(_my_book_list):
+                text = _book.text.split('\n')
+                itime = text[3][5:]; otime = text[4][5:15]
+                date_itime = datetime.datetime.strptime(itime, "%Y-%m-%d")
+                date_otime = datetime.datetime.strptime(otime, "%Y-%m-%d")
+                ctime = datetime.datetime.now().strftime("%Y-%m-%d")
+                dtime = time.mktime(date_otime.timetuple()) - \
+                    time.mktime(datetime.datetime.now().timetuple())
 
+                renew_button = _book.find('input')['onclick']
+                renew_info = [eval(i) for i in renew_button[renew_button.index('(')+1:\
+                                   renew_button.index(')')].split(',')]
+                bar_code = renew_info[0]
+                check = renew_info[1]
+
+                my_book_list.append({
+                    'book': text[2].split('/')[0].strip(),
+                    'author': text[2].split('/')[-1].strip(),
+                    'itime': str(itime),
+                    "otime": str(otime),
+                    "time": int(dtime/(24*60*60)),
+                    "room": text[6].strip(),
+                    "bar_code": bar_code,
+                    "check": check,
+                    "id": bids[index]
+                        })
+        for i in my_book_list:
+            print('----------')
+            print(i)
+            print('----------')
+
+        
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(search_books("骆驼祥子"))
+    loop.run_until_complete(test())
     loop.close()
