@@ -3,8 +3,6 @@ import functools
 import aiohttp
 from aiohttp.web import Response
 
-lib_test_url = ''
-
 def require_lib_login(f):
     @functools.wraps(f)
     async def decorator(request, *args, **kwargs):

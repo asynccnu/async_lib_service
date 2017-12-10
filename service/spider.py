@@ -68,6 +68,7 @@ async def search_books(keyword):
                         'id' : marc_no,
                     })
             print(book_info_list)
+            #return book_info_list
 
 async def book_me(s):
     """
@@ -113,10 +114,10 @@ async def book_me(s):
                     "check": check,
                     "id": bids[index]
                         })
+        #return my_book_list 
         for i in my_book_list:
-            print('----------')
             print(i)
-            print('----------')
+            print('.')
 
 async def renew_book(s, captcha, bar_code, check):
     renew_url = lib_renew_url
@@ -145,6 +146,7 @@ async def renew_book(s, captcha, bar_code, check):
                 else:
                     res_code = 400
             print(res_string + '-> ' + str(res_code))
+            #return res_code
 
 async def get_book(id):
     detail_url = lib_detail_url % id
@@ -180,6 +182,7 @@ async def get_book(id):
                         "tid": tid, "date": date })
                 else:
                     booklist.append({"status": lit[-1], "room": lit[-2], "tid": tid})
+            #return({'bid', 'book', 'author' ...})
             print({
                     'bid':bid, 
                     'book':book,
