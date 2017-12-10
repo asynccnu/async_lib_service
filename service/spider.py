@@ -49,8 +49,8 @@ async def search_books(keyword):
             book_list_info = soup.find_all('li', class_ = 'book_list_info')
             book_info_list = []
             #因为图书简介变成了Ajax动态获取，如果要获取图书简介就需要一个一个页面进去
-            #取得isbn, 之后再一次次请求豆瓣API, 这样耗时了，所以不如直接返回学校
-            #学校图书馆的url, 让用户自己去访问
+            #取得isbn, 之后再一次次请求豆瓣API, 这样在搜索结果多的时候会十分耗时，
+            #所以不如直接返回学校图书馆的url, 让用户自己去访问
             for book_info in book_list_info:
                 if book_info:
                     book = book_info.find('a', href=re.compile('item.php*')).string
@@ -142,6 +142,11 @@ async def renew_book(s, captcha, bar_code, check):
                 else:
                     res_code = 400
             print(res_string + '-> ' + str(res_code))
+
+async def get_book(id):
+    detail_url = lib_detail_url % id
+    async with aio
+
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     loop.run_until_complete(test())
