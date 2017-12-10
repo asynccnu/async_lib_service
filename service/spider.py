@@ -1,5 +1,6 @@
 import json
 import re
+import lxml
 import asyncio
 import aiohttp
 import time
@@ -26,7 +27,9 @@ async def test():
     print('\r\n\r\n' + "[TEST]Start test BookMe..." + '\r\n\r\n')
     await book_me(cookie)
     print('\r\n\r\n' + "[TEST]Start test ReNew..." + '\r\n\r\n')
-    await renew_book(cookie, 'XXSK', 'T112009478', 'F0780D4E')
+    await renew_book(cookie, 'ZEPW', 'T112009478', 'F0780D4E')
+    print('\r\n\r\n' + "[TEST]Start test GetInof..." + '\r\n\r\n')
+    await get_book('0001477335')
 
 async def search_books(keyword):
     search_url = lib_search_url
@@ -45,7 +48,7 @@ async def search_books(keyword):
     async with aiohttp.ClientSession(cookie_jar = aiohttp.CookieJar(unsafe = True), headers = headers) as session:
         async with session.post(search_url, data = post_data) as resp:
             html = await resp.text()
-            soup = BeautifulSoup(html, 'html5lib')
+            soup = BeautifulSoup(html, 'lxml')
             book_list_info = soup.find_all('li', class_ = 'book_list_info')
             book_info_list = []
             #因为图书简介变成了Ajax动态获取，如果要获取图书简介就需要一个一个页面进去
@@ -75,7 +78,7 @@ async def book_me(s):
     async with aiohttp.ClientSession(cookie_jar = aiohttp.CookieJar(unsafe = True), cookies = s, headers = headers) as session:
         async with session.get(me_url) as resp:
             html = await resp.text()
-            soup = BeautifulSoup(html, 'html5lib')
+            soup = BeautifulSoup(html, 'lxml')
             bids = []
             a_tags = soup.find_all('a', class_ = 'blue')
             for a_tag in a_tags:
@@ -86,7 +89,7 @@ async def book_me(s):
             _my_book_list = _my_book_list[0:2]
             for index, _book in enumerate(_my_book_list):
                 text = _book.text.split('\n')
-                itime = text[3][5:]; otime = text[4][5:15]
+                itime = text[3][:].strip(); otime = text[4][:15].strip()
                 date_itime = datetime.datetime.strptime(itime, "%Y-%m-%d")
                 date_otime = datetime.datetime.strptime(otime, "%Y-%m-%d")
                 ctime = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -128,11 +131,11 @@ async def renew_book(s, captcha, bar_code, check):
             cookies = s, headers = headers) as session:
         async with session.post(renew_url, data = payload) as resp:
             html = await resp.text()
-            res_color = BeautifulSoup(html, "html5lib").find('font')['color']
+            res_color = BeautifulSoup(html, 'lxml').find('font')['color']
             if res_color == 'green':
                 res_code = 200
             else:
-                res_string = BeautifulSoup(html, "html5lib").find('font').string.strip()
+                res_string = BeautifulSoup(html, 'lxml').find('font').string.strip()
                 early = '不到续借时间，不得续借！'
                 unavailable = '超过最大续借次数，不得续借！'
                 if res_string == early:
@@ -145,7 +148,45 @@ async def renew_book(s, captcha, bar_code, check):
 
 async def get_book(id):
     detail_url = lib_detail_url % id
-    async with aio
+    async with aiohttp.ClientSession(cookie_jar = aiohttp.CookieJar(unsafe = True),
+                headers = headers) as session:
+        async with session.get(detail_url) as resp:
+            thehtml = await resp.text()
+            soup = BeautifulSoup(thehtml, 'lxml')
+            alldd = soup.find_all('dd')
+            book = alldd[0].text.split("/")[0]
+            author = alldd[0].text.split("/")[1]
+            
+            #获取豆瓣简介
+            isbn = alldd[2].text.split("/")[0]
+            douban = douban_url % isbn
+            async with aiohttp.ClientSession(cookie_jar = aiohttp.CookieJar(unsafe = True),headers = headers) as dsession:
+                async with dsession.get(douban) as dresp:
+                    rd = await dresp.json()
+                    intro = rd.get("summary")
+            
+            #Booklist
+            booklist = []
+            _booklist = soup.find(id = 'tab_item').find_all('tr', class_ = 'whitetext')
+            for _book in _booklist:
+                bid = _book.td.text
+                tid = _book.td.next_sibling.next_sibling.string
+                lit = _book.text.split()
+                if '-' in lit[-1]:
+                    date = lit[-1][-10:]
+                    status = lit[-1][:2]
+                    booklist.append({
+                        "status": status, "room": lit[-2], "bid": bid,
+                        "tid": tid, "date": date })
+                else:
+                    booklist.append({"status": lit[-1], "room": lit[-2], "tid": tid})
+            print({
+                    'bid':bid, 
+                    'book':book,
+                    'author':author,
+                    'intro':intro,
+                    'books':booklist
+                 })
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
