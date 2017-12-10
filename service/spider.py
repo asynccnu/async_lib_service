@@ -18,11 +18,15 @@ headers = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36",
 }
 
+#'bar_code': 'T112009478', 'check': 'F0780D4E', 
+
 async def test():
     print('\r\n\r\n' + "[TEST]Start test SearchBooks..." + '\r\n\r\n')
     await search_books("亲爱的三毛")
     print('\r\n\r\n' + "[TEST]Start test BookMe..." + '\r\n\r\n')
     await book_me(cookie)
+    print('\r\n\r\n' + "[TEST]Start test ReNew..." + '\r\n\r\n')
+    await renew_book(cookie, 'XXSK', 'T112009478', 'F0780D4E')
 
 async def search_books(keyword):
     search_url = lib_search_url
@@ -39,7 +43,7 @@ async def search_books(keyword):
         'dept': 'ALL' 
     }
     async with aiohttp.ClientSession(cookie_jar = aiohttp.CookieJar(unsafe = True), headers = headers) as session:
-        async with session.post(search_url, data = post_data, headers = headers) as resp:
+        async with session.post(search_url, data = post_data) as resp:
             html = await resp.text()
             soup = BeautifulSoup(html, 'html5lib')
             book_list_info = soup.find_all('li', class_ = 'book_list_info')
@@ -111,7 +115,33 @@ async def book_me(s):
             print(i)
             print('----------')
 
-        
+async def renew_book(s, captcha, bar_code, check):
+    renew_url = lib_renew_url
+    now = int(time.time()*1000)
+    payload = {
+        'bar_code': bar_code,
+        'check': check,
+        'time': now,
+        'captcha': captcha
+    }
+    async with aiohttp.ClientSession(cookie_jar = aiohttp.CookieJar(unsafe = True),
+            cookies = s, headers = headers) as session:
+        async with session.post(renew_url, data = payload) as resp:
+            html = await resp.text()
+            res_color = BeautifulSoup(html, "html5lib").find('font')['color']
+            if res_color == 'green':
+                res_code = 200
+            else:
+                res_string = BeautifulSoup(html, "html5lib").find('font').string.strip()
+                early = '不到续借时间，不得续借！'
+                unavailable = '超过最大续借次数，不得续借！'
+                if res_string == early:
+                    res_code = 406
+                elif res_string == unavailable:
+                    res_code = 403
+                else:
+                    res_code = 400
+            print(res_string + '-> ' + str(res_code))
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     loop.run_until_complete(test())
