@@ -14,7 +14,7 @@ lib_detail_url = "http://202.114.34.15/opac/item.php?marc_no=%s"
 lib_renew_url = "http://202.114.34.15/reader/ajax_renew.php"
 douban_url = "https://api.douban.com/v2/book/isbn/%s"
 
-cookie = {'PHPSESSID' : 'ST-1562-eqRFWH0fyzOkvKdSsXZ9-accountccnueducn'}
+cookie = {'PHPSESSID' : 'ppuv0dd2ua05f1vroosa5p0qh3'}
 headers = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36",
 }
@@ -27,7 +27,7 @@ async def test():
     print('\r\n\r\n' + "[TEST]Start test BookMe..." + '\r\n\r\n')
     await book_me(cookie)
     print('\r\n\r\n' + "[TEST]Start test ReNew..." + '\r\n\r\n')
-    await renew_book(cookie, 'ZEPW', 'T112009478', 'F0780D4E')
+    await renew_book(cookie, 'ZZEP', 'T112009478', 'F0780D4E')
     print('\r\n\r\n' + "[TEST]Start test GetInof..." + '\r\n\r\n')
     await get_book('0001477335')
 
