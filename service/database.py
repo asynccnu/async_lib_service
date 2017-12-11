@@ -7,5 +7,5 @@ MONGOPORT = int(os.getenv('MONGOPORT') or '27017')
 async def db_setup():
     client = AsyncIOMotorClient(MONGOHOST, MONGOPORT)
     attention = client['attention']
-    attentioncol = attention['attention']
+    attentioncol = attention['attentiondb']
     return attention 
