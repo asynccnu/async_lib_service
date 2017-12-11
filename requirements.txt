@@ -9,3 +9,7 @@ pymongo==3.6.0
 six==1.11.0
 webencodings==0.5.1
 yarl==0.16.0
+cryptography==1.7.2 
+mongokit==0.9.1.1 
+gunicorn==19.6.0 
+motor==1.1 

@@ -34,15 +34,15 @@ async def test():
 async def search_books(keyword):
     search_url = lib_search_url
     post_data = {
-       'strSearchType': 'title', 
+        'strSearchType': 'title', 
         'match_flag': 'forward',
-    'historyCount': '1',
+        'historyCount': '1',
         'strText': keyword,
         'doctype': 'ALL',
-    'displaypg': '100',
+        'displaypg': '100',
         'showmode': 'list', 
         'sort': 'CATA_DATE',
-    'orderby': 'desc',
+            'orderby': 'desc',
         'dept': 'ALL' 
     }
     async with aiohttp.ClientSession(cookie_jar = aiohttp.CookieJar(unsafe = True), headers = headers) as session:
@@ -67,8 +67,7 @@ async def search_books(keyword):
                         'bookurl': 'http://202.114.34.15/opac/' + marc_no_link,
                         'id' : marc_no,
                     })
-            print(book_info_list)
-            #return book_info_list
+            return book_info_list
 
 async def book_me(s):
     """
@@ -114,10 +113,10 @@ async def book_me(s):
                     "check": check,
                     "id": bids[index]
                         })
-        #return my_book_list 
         for i in my_book_list:
             print(i)
             print('.')
+        return my_book_list 
 
 async def renew_book(s, captcha, bar_code, check):
     renew_url = lib_renew_url
@@ -183,7 +182,7 @@ async def get_book(id):
                 else:
                     booklist.append({"status": lit[-1], "room": lit[-2], "tid": tid})
             #return({'bid', 'book', 'author' ...})
-            print({
+            return ({
                     'bid':bid, 
                     'book':book,
                     'author':author,
