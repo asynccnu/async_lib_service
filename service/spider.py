@@ -14,7 +14,7 @@ lib_detail_url = "http://202.114.34.15/opac/item.php?marc_no=%s"
 lib_renew_url = "http://202.114.34.15/reader/ajax_renew.php"
 douban_url = "https://api.douban.com/v2/book/isbn/%s"
 
-cookie = {'PHPSESSID' : 'ppuv0dd2ua05f1vroosa5p0qh3'}
+cookie = {'PHPSESSID' : 'l4edbfgkgq3dgb80dr6ll5pmr6' }
 headers = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36",
 }
@@ -42,7 +42,7 @@ async def search_books(keyword):
         'displaypg': '100',
         'showmode': 'list', 
         'sort': 'CATA_DATE',
-            'orderby': 'desc',
+        'orderby': 'desc',
         'dept': 'ALL' 
     }
     async with aiohttp.ClientSession(cookie_jar = aiohttp.CookieJar(unsafe = True), headers = headers) as session:
@@ -113,6 +113,8 @@ async def book_me(s):
                     "check": check,
                     "id": bids[index]
                         })
+        print("in the book_me")
+        print(my_book_list)
         for i in my_book_list:
             print(i)
             print('.')
@@ -145,7 +147,7 @@ async def renew_book(s, captcha, bar_code, check):
                 else:
                     res_code = 400
             print(res_string + '-> ' + str(res_code))
-            #return res_code
+            return res_code
 
 async def get_book(id):
     detail_url = lib_detail_url % id
