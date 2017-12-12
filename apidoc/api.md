@@ -202,9 +202,11 @@ page: int
 ``` 
 
 **RETURN Data:** 
+```
 {
 	"msg" : string
 }
+```
 
 **Status Code :**
 ```
