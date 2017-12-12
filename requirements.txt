@@ -1,14 +1,14 @@
-aiohttp==2.3.6
+aiohttp==2.3.5
 aiohttp-session==2.1.0
 async-timeout==2.0.0
 beautifulsoup4==4.6.0
 chardet==3.0.4
 lxml==4.1.1
 multidict==3.3.2
-pymongo==3.6.0
+pymongo==3.5.1
 six==1.11.0
 webencodings==0.5.1
-yarl==0.16.0
+yarl==0.15.0
 cryptography==1.7.2 
 mongokit==0.9.1.1 
 gunicorn==19.6.0 

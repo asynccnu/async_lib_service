@@ -1,0 +1,9 @@
+#---------------------------async_lib_service-----------------------
+lib_api:
+    build: .
+    env_file:
+        - lib.env
+    command:
+        gunicorn --name lib_api -b 0.0.0.0:8080 -w 2 wsgi:app
+    ports:
+        - "7070:8080"
