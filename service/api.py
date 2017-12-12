@@ -103,16 +103,87 @@ async def async_create_attention(request,sid):
         'sid' : sid 
     }
     atten = await attention.attentiondb.find_one(att)
-    if atten is None : 
+    if atten is not None : 
         return Response(body=b'{"msg":"already attention"}',
                     content_type='application/json', status=401) 
 
     atten = await attention.attentiondb.insert_one(att)
-    return json_response(res) 
+    att['_id'] = str(att['_id'])
+    return json_response(att) 
 
 
+@require_sid 
+async def async_get_atten(request,sid): 
+    """
+    :function: async_get_atten
+    :args:
+        - request
+        - sid: 学号
+    获取关注的图书列表
+    """
+
+    async def isavailable(book_id):
+        """
+        获取图书是否可借
+        """
+        book_list = await get_book(book_id)
+        for book in book_list['books']:
+            if book['status'].encode('utf-8') == '\xe5\x8f\xaf\xe5\x80\x9f': 
+                return "y"
+        return "n"
+
+    
+    attention = request.app['attention'] 
+    all_book = []
+    atten = attention.attentiondb.find({'sid':sid}) 
+    tmp = []
+    while True: 
+        if not atten.alive: break 
+        await atten.fetch_next 
+        one = atten.next_object()
+        try:
+            one['_id'] = str(one['_id'])
+        except TypeError:
+            return Response(body=b'{"msg": "no-attention"}',
+                            content_type='application/json', status=404)
+        tmp.append(one)
+    for item in tmp: 
+        avbl = await isavailable(item['id'])
+        all_book.append({
+            'bid' : item['bid'], 
+            'book': item['book'], 
+            'id' : item['id'],
+            'author': item['author'],
+            'avb' : avbl 
+        }) 
+    return json_response(all_book)
+
+
+@require_sid
+async def async_del_atten(request,sid):
+    """
+    :function: async_del_atten
+    :args:
+        - request
+        - sid: 学号
+    删除图书关注提醒
+    """
+    attention = request.app['attention']  
+    data = await request.json()
+    book_id = data['id']
+    deleted = await attention.attentiondb.delete_one({'sid':sid,'id':book_id}) 
+
+    if deleted.deleted_count == 0: 
+        return Response(body=b'{"msg": "do-not-attention"}',
+                    content_type='application/json', status=404)
+    return Response(body=b'{"msg": "del success"}',
+                content_type='application/json', status=200)
+
+    
 api.router.add_route('GET', '/search/',async_search_books, name='async_search_books')
 api.router.add_route('GET', '/detail/{id}/',async_book_detail, name='async_book_detail')
 api.router.add_route('GET', '/me/',async_book_me, name='async_book_me')
 api.router.add_route('POST', '/renew/',async_renew_book, name='async_renew_book')
 api.router.add_route('POST', '/create/',async_create_attention, name='async_create_attention')
+api.router.add_route('GET', '/attention/',async_get_atten, name='async_get_attens')
+api.router.add_route('DELETE', '/delete/',async_del_atten, name='async_del_atten')

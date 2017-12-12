@@ -14,11 +14,7 @@ lib_detail_url = "http://202.114.34.15/opac/item.php?marc_no=%s"
 lib_renew_url = "http://202.114.34.15/reader/ajax_renew.php"
 douban_url = "https://api.douban.com/v2/book/isbn/%s"
 
-<<<<<<< HEAD
 cookie = {'PHPSESSID' : 'l4edbfgkgq3dgb80dr6ll5pmr6' }
-=======
-cookie = {'PHPSESSID' : 'ppuv0dd2ua05f1vroosa5p0qh3'}
->>>>>>> c6f53b7460ae28523e1c15e763b038b3131a205b
 headers = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36",
 }
