@@ -1,6 +1,5 @@
 import json
 import re
-import lxml
 import asyncio
 import aiohttp
 import time
@@ -14,7 +13,7 @@ lib_detail_url = "http://202.114.34.15/opac/item.php?marc_no=%s"
 lib_renew_url = "http://202.114.34.15/reader/ajax_renew.php"
 douban_url = "https://api.douban.com/v2/book/isbn/%s"
 
-cookie = {'PHPSESSID' : 'l4edbfgkgq3dgb80dr6ll5pmr6' }
+cookie = {'PHPSESSID' : 'ST-116-DcGgZOHMt7gVIuKvxMeA-accountccnueducn' }
 headers = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36",
 }
@@ -22,14 +21,23 @@ headers = {
 #'bar_code': 'T112009478', 'check': 'F0780D4E', 
 
 async def test():
-    print('\r\n\r\n' + "[TEST]Start test SearchBooks..." + '\r\n\r\n')
-    await search_books("亲爱的三毛")
+    for i in range(100):
+        print('\r\n\r\n' + "[TEST]Start test SearchBooks..." + '\r\n\r\n')
+        data = await search_books("MUXI")
+        print(data)
+        await asyncio.sleep(3)
+
     print('\r\n\r\n' + "[TEST]Start test BookMe..." + '\r\n\r\n')
-    await book_me(cookie)
+    data = await book_me(cookie)
+    print(data)
+
     print('\r\n\r\n' + "[TEST]Start test ReNew..." + '\r\n\r\n')
-    await renew_book(cookie, 'ZZEP', 'T112009478', 'F0780D4E')
+    data = await renew_book(cookie, 'ZZEP', 'T112009478', 'F0780D4E')
+    print(data)
+
     print('\r\n\r\n' + "[TEST]Start test GetInof..." + '\r\n\r\n')
-    await get_book('0001477335')
+    data = await get_book('0001449015')
+    print(data)
 
 async def search_books(keyword):
     search_url = lib_search_url
@@ -48,7 +56,7 @@ async def search_books(keyword):
     async with aiohttp.ClientSession(cookie_jar = aiohttp.CookieJar(unsafe = True), headers = headers) as session:
         async with session.post(search_url, data = post_data) as resp:
             html = await resp.text()
-            soup = BeautifulSoup(html, 'lxml')
+            soup = BeautifulSoup(html, 'html5lib')
             book_list_info = soup.find_all('li', class_ = 'book_list_info')
             book_info_list = []
             #因为图书简介变成了Ajax动态获取，如果要获取图书简介就需要一个一个页面进去
@@ -78,7 +86,7 @@ async def book_me(s):
     async with aiohttp.ClientSession(cookie_jar = aiohttp.CookieJar(unsafe = True), cookies = s, headers = headers) as session:
         async with session.get(me_url) as resp:
             html = await resp.text()
-            soup = BeautifulSoup(html, 'lxml')
+            soup = BeautifulSoup(html, 'html5lib')
             bids = []
             a_tags = soup.find_all('a', class_ = 'blue')
             for a_tag in a_tags:
@@ -86,7 +94,9 @@ async def book_me(s):
             _my_book_list = soup.find_all('tr')[1:]
             my_book_list = []
             #最后两个是垃圾信息，一个是二维码一个是无用信息
-            _my_book_list = _my_book_list[0:2]
+            if len(_my_book_list) >= 2 : 
+                _my_book_list = _my_book_list[0:2]
+
             for index, _book in enumerate(_my_book_list):
                 text = _book.text.split('\n')
                 itime = text[3][:].strip(); otime = text[4][:15].strip()
@@ -113,11 +123,6 @@ async def book_me(s):
                     "check": check,
                     "id": bids[index]
                         })
-        print("in the book_me")
-        print(my_book_list)
-        for i in my_book_list:
-            print(i)
-            print('.')
         return my_book_list 
 
 async def renew_book(s, captcha, bar_code, check):
@@ -133,11 +138,11 @@ async def renew_book(s, captcha, bar_code, check):
             cookies = s, headers = headers) as session:
         async with session.post(renew_url, data = payload) as resp:
             html = await resp.text()
-            res_color = BeautifulSoup(html, 'lxml').find('font')['color']
+            res_color = BeautifulSoup(html, 'html5lib').find('font')['color']
             if res_color == 'green':
                 res_code = 200
             else:
-                res_string = BeautifulSoup(html, 'lxml').find('font').string.strip()
+                res_string = BeautifulSoup(html, 'html5lib').find('font').string.strip()
                 early = '不到续借时间，不得续借！'
                 unavailable = '超过最大续借次数，不得续借！'
                 if res_string == early:
@@ -155,10 +160,16 @@ async def get_book(id):
                 headers = headers) as session:
         async with session.get(detail_url) as resp:
             thehtml = await resp.text()
-            soup = BeautifulSoup(thehtml, 'lxml')
+            soup = BeautifulSoup(thehtml, 'html5lib')
             alldd = soup.find_all('dd')
+            if len(alldd) == 2:
+                return {}
             book = alldd[0].text.split("/")[0]
-            author = alldd[0].text.split("/")[1]
+            #有可能没有作者
+            try:
+                author = alldd[0].text.split("/")[1]
+            except:
+                author = ''
             
             #获取豆瓣简介
             isbn = alldd[2].text.split("/")[0]
@@ -183,7 +194,6 @@ async def get_book(id):
                         "tid": tid, "date": date })
                 else:
                     booklist.append({"status": lit[-1], "room": lit[-2], "tid": tid})
-            #return({'bid', 'book', 'author' ...})
             return ({
                     'bid':bid, 
                     'book':book,
