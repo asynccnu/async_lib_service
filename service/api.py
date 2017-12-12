@@ -128,7 +128,7 @@ async def async_get_atten(request,sid):
         """
         book_list = await get_book(book_id)
         for book in book_list['books']:
-            if book['status'].encode('utf-8') == '\xe5\x8f\xaf\xe5\x80\x9f': 
+            if book['status'].encode('utf-8') == b'\xe5\x8f\xaf\xe5\x80\x9f': 
                 return "y"
         return "n"
 
