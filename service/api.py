@@ -1,5 +1,5 @@
 from .spider import search_books, get_book, book_me, renew_book
-from .decorator import require_lib_login, require_s, require_captcha, require_sid  
+from .decorator import require_s, require_captcha, require_sid  
 from aiohttp.web import Response, json_response, Application 
 from .paginate import _Pagination
 
@@ -14,12 +14,12 @@ async def async_search_books(request):
     """
     pages = 20
     query_string = request.rel_url.query_string
-    print(request.scheme)
     if query_string == None : 
         return Response(body=b'{"args-error": "null"}',
                     content_type='application/json', status=401)
     
-    keys = []; values = []
+    keys = []
+    values = []
     for item in query_string.split('&'):
         keys.append(item.split('=')[0])
         values.append(item.split('=')[1])
@@ -67,12 +67,8 @@ async def async_renew_book(request,s,captcha):
         - request 
         - s: 爬虫session对象
         - captcha: 验证码
-        - bar_code: 图书bar_code字段
-        - check: 图书check字段
     """
     cookie = {'PHPSESSID' : s }
-    print(s)
-    print(captcha)
     data = await request.json() 
     bar_code = data['bar_code']
     check = data['check']
@@ -137,6 +133,7 @@ async def async_get_atten(request,sid):
     all_book = []
     atten = attention.attentiondb.find({'sid':sid}) 
     tmp = []
+
     while True: 
         if not atten.alive: break 
         await atten.fetch_next 
@@ -147,6 +144,7 @@ async def async_get_atten(request,sid):
             return Response(body=b'{"msg": "no-attention"}',
                             content_type='application/json', status=404)
         tmp.append(one)
+
     for item in tmp: 
         avbl = await isavailable(item['id'])
         all_book.append({

@@ -3,23 +3,6 @@ import functools
 import aiohttp
 from aiohttp.web import Response, json_response
 
-def require_lib_login(f):
-    @functools.wraps(f)
-    async def decorator(request, *args, **kwargs):
-        headers = request.headers
-        req_headers = dict(headers)
-        PHPSESSID = req_headers['PHPSESSID']
-        if PHPSESSID:
-            cookies = { 'PHPSESSID' : PHPSESSID }
-            return await f(request, cookies, None, *args, **kwargs)
-        else:
-            return Response(
-                body = b'',
-                content_type = 'application/json',
-                status = 401
-            )
-
-
 def require_s(f):
     @functools.wraps(f)
     async def decorator(request, *args, **kwargs):
