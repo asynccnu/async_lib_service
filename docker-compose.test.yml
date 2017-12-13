@@ -3,21 +3,15 @@ lib_api:
     build: .
     env_file:
         - lib.env
-    command: python3.6 initmongo.py
     command: gunicorn wsgi:app -k aiohttp.worker.GunicornWebWorker -b 0.0.0.0:7070
     ports:
         - "7070:7070"
-    links:
-        - lib_mongo:mongo
+
 #-----------------------------mongodb------------------------------
 lib_mongo:
     image: mongo
-    command: mongod --smallfiles -port 27017  
     ports:
-        - 27017:27017
+        - "27017:27017"
     container_name: "lib_mongo"
     volumes: 
         - ./data/db:/data/db
-    environment: 
-        - MONGODB_USER=muxi_lib 
-        - MONGODB_PASS=muxistudio

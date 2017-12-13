@@ -3,7 +3,6 @@ lib_api:
     build: .
     env_file:
         - lib.env
-    command:
-        gunicorn --name lib_api -b 0.0.0.0:8080 -w 2 wsgi:app
+    command: gunicorn wsgi:app -k aiohttp.worker.GunicornWebWorker -b 0.0.0.0:8080
     ports:
         - "7070:8080"
