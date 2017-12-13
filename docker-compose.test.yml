@@ -3,9 +3,9 @@ lib_api:
     build: .
     env_file:
         - lib.env
-    command: gunicorn wsgi:app -k aiohttp.worker.GunicornWebWorker -b 0.0.0.0:7070
+    command: gunicorn wsgi:app -k aiohttp.worker.GunicornWebWorker -b 0.0.0.0:1295
     ports:
-        - "7070:7070"
+        - "1295:1295"
 
 #-----------------------------mongodb------------------------------
 lib_mongo:

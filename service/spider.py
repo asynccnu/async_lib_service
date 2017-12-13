@@ -56,7 +56,7 @@ async def search_books(keyword):
     async with aiohttp.ClientSession(cookie_jar = aiohttp.CookieJar(unsafe = True), headers = headers) as session:
         async with session.post(search_url, data = post_data) as resp:
             html = await resp.text()
-            soup = BeautifulSoup(html, 'html5lib')
+            soup = BeautifulSoup(html, 'lxml')
             book_list_info = soup.find_all('li', class_ = 'book_list_info')
             book_info_list = []
             #因为图书简介变成了Ajax动态获取，如果要获取图书简介就需要一个一个页面进去
@@ -86,7 +86,7 @@ async def book_me(s):
     async with aiohttp.ClientSession(cookie_jar = aiohttp.CookieJar(unsafe = True), cookies = s, headers = headers) as session:
         async with session.get(me_url) as resp:
             html = await resp.text()
-            soup = BeautifulSoup(html, 'html5lib')
+            soup = BeautifulSoup(html, 'lxml')
             bids = []
             a_tags = soup.find_all('a', class_ = 'blue')
             for a_tag in a_tags:
@@ -138,11 +138,11 @@ async def renew_book(s, captcha, bar_code, check):
             cookies = s, headers = headers) as session:
         async with session.post(renew_url, data = payload) as resp:
             html = await resp.text()
-            res_color = BeautifulSoup(html, 'html5lib').find('font')['color']
+            res_color = BeautifulSoup(html, 'lxml').find('font')['color']
             if res_color == 'green':
                 res_code = 200
             else:
-                res_string = BeautifulSoup(html, 'html5lib').find('font').string.strip()
+                res_string = BeautifulSoup(html, 'lxml').find('font').string.strip()
                 early = '不到续借时间，不得续借！'
                 unavailable = '超过最大续借次数，不得续借！'
                 if res_string == early:
@@ -160,10 +160,16 @@ async def get_book(id):
                 headers = headers) as session:
         async with session.get(detail_url) as resp:
             thehtml = await resp.text()
-            soup = BeautifulSoup(thehtml, 'html5lib')
+            soup = BeautifulSoup(thehtml, 'lxml')
             alldd = soup.find_all('dd')
             if len(alldd) == 2:
-                return {}
+                return {
+                    'bid':'',
+                    'book':'',
+                    'author':'',
+                    'intro':'',
+                    'books':[]
+                }
             book = alldd[0].text.split("/")[0]
             #有可能没有作者
             try:
