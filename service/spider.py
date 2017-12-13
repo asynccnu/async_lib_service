@@ -21,11 +21,9 @@ headers = {
 #'bar_code': 'T112009478', 'check': 'F0780D4E', 
 
 async def test():
-    for i in range(100):
-        print('\r\n\r\n' + "[TEST]Start test SearchBooks..." + '\r\n\r\n')
-        data = await search_books("MUXI")
-        print(data)
-        await asyncio.sleep(3)
+    print('\r\n\r\n' + "[TEST]Start test SearchBooks..." + '\r\n\r\n')
+    data = await search_books("亲爱的三毛")
+    print(data)
 
     print('\r\n\r\n' + "[TEST]Start test BookMe..." + '\r\n\r\n')
     data = await book_me(cookie)
