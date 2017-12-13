@@ -2,8 +2,11 @@ from .spider import search_books, get_book, book_me, renew_book
 from .decorator import require_s, require_captcha, require_sid  
 from aiohttp.web import Response, json_response, Application 
 from .paginate import _Pagination
+from .database import db_setup
+from . import loop
 
 api = Application() 
+attention = loop.run_until_complete(db_setup())
 
 async def async_search_books(request): 
     """
@@ -85,7 +88,7 @@ async def async_create_attention(request,sid):
         - sid: 学号
     :添加关注图书, 存储mongodb数据库
     """
-    attention = request.app['attention']
+    #attention = request.app['attention']
     data = await request.json()
     book_bid = data['bid']
     book_name = data['book']
@@ -129,7 +132,7 @@ async def async_get_atten(request,sid):
         return "n"
 
     
-    attention = request.app['attention'] 
+    #attention = request.app['attention'] 
     all_book = []
     atten = attention.attentiondb.find({'sid':sid}) 
     tmp = []
@@ -166,7 +169,7 @@ async def async_del_atten(request,sid):
         - sid: 学号
     删除图书关注提醒
     """
-    attention = request.app['attention']  
+    #attention = request.app['attention']  
     data = await request.json()
     book_id = data['id']
     deleted = await attention.attentiondb.delete_one({'sid':sid,'id':book_id}) 

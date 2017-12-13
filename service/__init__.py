@@ -4,6 +4,7 @@ from aiohttp import web
 from aiohttp_session import setup, get_session, session_middleware
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from cryptography import fernet
+from .database import db_setup
 
 def create_app():
     app = web.Application()
