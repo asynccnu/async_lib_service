@@ -32,6 +32,7 @@ page: int
 200 // 成功 
 401 // 图书不存在
 ```
+
 *** 
 
 ## 某本图书
@@ -80,7 +81,12 @@ page: int
 	"check" : string 
 }
 ```
-**RETURN Data：None**
+**RETURN Data：**
+```
+{
+    "msg": string 
+}
+```
 
 **Status Code :**
 ```
@@ -122,6 +128,8 @@ page: int
 200 // 成功 
 ```
 
+***
+
 ## 添加关注图书
 |URL|Header|Method|
 | --- | -- | -- |
@@ -133,7 +141,7 @@ page: int
 
 ```
 {
-	   "book": string,
+	"book": string,
        "author": string,
        "bid": string,
        "book_id": string
@@ -144,7 +152,7 @@ page: int
 
 ```
 {
-	   "book": string,
+	"book": string,
        "author": string,
        "bid": string,
        "book_id": string
