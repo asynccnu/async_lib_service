@@ -32,6 +32,7 @@ page: int
 200 // 成功 
 401 // 图书不存在
 ```
+
 *** 
 
 ## 某本图书
@@ -69,7 +70,7 @@ page: int
 ## 续借图书 
 |URL|Header|Method|
 | --- | -- | -- |
-|/api/lib/renew/| s:stirng, captcha :string | POST |
+|/api/lib/renew/| s:stirng(Phpsessid), captcha :string | POST |
 
 **URL Params: None**
 
@@ -80,7 +81,12 @@ page: int
 	"check" : string 
 }
 ```
-**RETURN Data：None**
+**RETURN Data：**
+```
+{
+    "msg": string 
+}
+```
 
 **Status Code :**
 ```
@@ -94,7 +100,7 @@ page: int
 ## 我的图书
 |URL|Header|Method|
 | --- | -- | -- |
-|/api/lib/me/| s:stirng | GET | 
+|/api/lib/me/| s:stirng(Phpsessid) | GET | 
 
 **URL Params: None**
 
@@ -122,10 +128,12 @@ page: int
 200 // 成功 
 ```
 
+***
+
 ## 添加关注图书
 |URL|Header|Method|
 | --- | -- | -- |
-|/api/lib/create/| sid :stirng | POST | 
+|/api/lib/create/| sid :stirng(学号) | POST | 
 
 **URL Params: None**
 
@@ -133,7 +141,7 @@ page: int
 
 ```
 {
-	   "book": string,
+	"book": string,
        "author": string,
        "bid": string,
        "book_id": string
@@ -144,7 +152,7 @@ page: int
 
 ```
 {
-	   "book": string,
+	"book": string,
        "author": string,
        "bid": string,
        "book_id": string
@@ -161,7 +169,7 @@ page: int
 ## 获取所有关注 
 |URL|Header|Method|
 | --- | -- | -- |
-|/api/lib/attention/| sid :stirng | GET | 
+|/api/lib/attention/| sid :string(学号) | GET | 
 
 **URL Params: None**
 
@@ -190,14 +198,14 @@ page: int
 ## 取消关注图书 
 |URL|Header|Method|
 | --- | -- | -- |
-|/api/lib/delete/| sid :stirng |  DELETE | 
+|/api/lib/delete/| sid :stirng（学号） |  DELETE | 
 
 **URL Params: None**
 
 **POST Data :** 
 ```
 {
-	"id" : string 
+	"id" : string   //id即添加时的book_id
 }
 ``` 
 

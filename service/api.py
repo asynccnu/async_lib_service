@@ -88,7 +88,6 @@ async def async_create_attention(request,sid):
         - sid: 学号
     :添加关注图书, 存储mongodb数据库
     """
-    #attention = request.app['attention']
     data = await request.json()
     book_bid = data['bid']
     book_name = data['book']
@@ -132,7 +131,6 @@ async def async_get_atten(request,sid):
         return "n"
 
     
-    #attention = request.app['attention'] 
     all_book = []
     atten = attention.attentiondb.find({'sid':sid}) 
     tmp = []
@@ -169,7 +167,6 @@ async def async_del_atten(request,sid):
         - sid: 学号
     删除图书关注提醒
     """
-    #attention = request.app['attention']  
     data = await request.json()
     book_id = data['id']
     deleted = await attention.attentiondb.delete_one({'sid':sid,'id':book_id}) 

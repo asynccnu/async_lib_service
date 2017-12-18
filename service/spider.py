@@ -22,7 +22,7 @@ headers = {
 
 async def test():
     print('\r\n\r\n' + "[TEST]Start test SearchBooks..." + '\r\n\r\n')
-    data = await search_books("MUXI")
+    data = await search_books("亲爱的三毛")
     print(data)
 
     print('\r\n\r\n' + "[TEST]Start test BookMe..." + '\r\n\r\n')
