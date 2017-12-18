@@ -21,11 +21,9 @@ headers = {
 #'bar_code': 'T112009478', 'check': 'F0780D4E', 
 
 async def test():
-    for i in range(100):
-        print('\r\n\r\n' + "[TEST]Start test SearchBooks..." + '\r\n\r\n')
-        data = await search_books("MUXI")
-        print(data)
-        await asyncio.sleep(3)
+    print('\r\n\r\n' + "[TEST]Start test SearchBooks..." + '\r\n\r\n')
+    data = await search_books("MUXI")
+    print(data)
 
     print('\r\n\r\n' + "[TEST]Start test BookMe..." + '\r\n\r\n')
     data = await book_me(cookie)
@@ -36,7 +34,7 @@ async def test():
     print(data)
 
     print('\r\n\r\n' + "[TEST]Start test GetInof..." + '\r\n\r\n')
-    data = await get_book('0001449015')
+    data = await get_book('0001567068')
     print(data)
 
 async def search_books(keyword):
@@ -188,18 +186,22 @@ async def get_book(id):
             #Booklist
             booklist = []
             _booklist = soup.find(id = 'tab_item').find_all('tr', class_ = 'whitetext')
-            for _book in _booklist:
-                bid = _book.td.text
-                tid = _book.td.next_sibling.next_sibling.string
-                lit = _book.text.split()
-                if '-' in lit[-1]:
-                    date = lit[-1][-10:]
-                    status = lit[-1][:2]
-                    booklist.append({
-                        "status": status, "room": lit[-2], "bid": bid,
-                        "tid": tid, "date": date })
-                else:
-                    booklist.append({"status": lit[-1], "room": lit[-2], "tid": tid})
+            #可能没有馆藏图书
+            if "此书刊可能正在订购中或者处理中" in str(_booklist[0]):
+                bid = _booklist[0].td.text
+            else:
+                for _book in _booklist:
+                    bid = _book.td.text
+                    tid = _book.td.next_sibling.next_sibling.string
+                    lit = _book.text.split()
+                    if '-' in lit[-1]:
+                        date = lit[-1][-10:]
+                        status = lit[-1][:2]
+                        booklist.append({
+                            "status": status, "room": lit[-2], "bid": bid,
+                            "tid": tid, "date": date })
+                    else:
+                        booklist.append({"status": lit[-1], "room": lit[-2], "tid": tid})
             return ({
                     'bid':bid, 
                     'book':book,
