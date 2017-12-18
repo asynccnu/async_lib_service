@@ -70,7 +70,7 @@ page: int
 ## 续借图书 
 |URL|Header|Method|
 | --- | -- | -- |
-|/api/lib/renew/| s:stirng, captcha :string | POST |
+|/api/lib/renew/| s:stirng(Phpsessid), captcha :string | POST |
 
 **URL Params: None**
 
@@ -100,7 +100,7 @@ page: int
 ## 我的图书
 |URL|Header|Method|
 | --- | -- | -- |
-|/api/lib/me/| s:stirng | GET | 
+|/api/lib/me/| s:stirng(Phpsessid) | GET | 
 
 **URL Params: None**
 
@@ -133,7 +133,7 @@ page: int
 ## 添加关注图书
 |URL|Header|Method|
 | --- | -- | -- |
-|/api/lib/create/| sid :stirng | POST | 
+|/api/lib/create/| sid :stirng(学号) | POST | 
 
 **URL Params: None**
 
@@ -169,7 +169,7 @@ page: int
 ## 获取所有关注 
 |URL|Header|Method|
 | --- | -- | -- |
-|/api/lib/attention/| sid :stirng | GET | 
+|/api/lib/attention/| sid :string(学号) | GET | 
 
 **URL Params: None**
 
@@ -198,7 +198,7 @@ page: int
 ## 取消关注图书 
 |URL|Header|Method|
 | --- | -- | -- |
-|/api/lib/delete/| sid :stirng |  DELETE | 
+|/api/lib/delete/| sid :stirng（学号） |  DELETE | 
 
 **URL Params: None**
 
