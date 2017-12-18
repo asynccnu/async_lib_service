@@ -38,8 +38,8 @@ page: int
 ## 某本图书
 |URL|Header|Method|
 | --- | -- | -- |
-|/api/lib/detail/<int:id>/| None| GET| 
-
+|/api/lib/detail/<int:id>/ （id是图书返回信息中的id）| None| GET| 
+ 
 **URL Params: None**
 
 **POST Data: None**
