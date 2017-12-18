@@ -205,7 +205,7 @@ page: int
 **POST Data :** 
 ```
 {
-	"id" : string 
+	"id" : string   //id即添加时的book_id
 }
 ``` 
 
