@@ -58,6 +58,11 @@ async def async_book_me(request,s):
     """
     cookie = {'PHPSESSID' : s }
     res = await book_me(cookie)
+
+    if res == 401:
+        return Response(body = '[]', 
+                content_type='application/json', status=401) 
+
     return json_response(res)
 
 

@@ -126,6 +126,7 @@ page: int
 **Status Code :**
 ```
 200 // 成功 
+401 // Cookie失效
 ```
 
 ***

@@ -84,6 +84,14 @@ async def book_me(s):
     async with aiohttp.ClientSession(cookie_jar = aiohttp.CookieJar(unsafe = True), cookies = s, headers = headers) as session:
         async with session.get(me_url) as resp:
             html = await resp.text()
+            
+            # 跳转到统一认证服务，401
+            if "统一身份认证服务" in str(html):
+                return 401
+            # 该记录为空，直接返回，不然下面会有out index 错误
+            elif "您的该项记录为空" in str(html):
+                return []
+
             soup = BeautifulSoup(html, 'lxml')
             bids = []
             a_tags = soup.find_all('a', class_ = 'blue')
@@ -92,6 +100,7 @@ async def book_me(s):
             _my_book_list = soup.find_all('tr')[1:]
             my_book_list = []
             #最后两个是垃圾信息，一个是二维码一个是无用信息
+            
             if len(_my_book_list) >= 2 : 
                 _my_book_list = _my_book_list[0:2]
 
