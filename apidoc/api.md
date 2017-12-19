@@ -38,8 +38,8 @@ page: int
 ## 某本图书
 |URL|Header|Method|
 | --- | -- | -- |
-|/api/lib/detail/<int:id>/| None| GET| 
-
+|/api/lib/detail/<int:id>/ （id是图书返回信息中的id）| None| GET| 
+ 
 **URL Params: None**
 
 **POST Data: None**
@@ -142,10 +142,10 @@ page: int
 
 ```
 {
-	"book": string,
+       "book": string,
        "author": string,
-       "bid": string,
-       "book_id": string
+       "bid": string,     // 对应返回的bid
+       "book_id": string // 对应返回的id
 }
 ``` 
 
@@ -153,10 +153,10 @@ page: int
 
 ```
 {
-	"book": string,
+       "book": string,
        "author": string,
-       "bid": string,
-       "book_id": string
+       "bid": string,    // 对应返回的bid
+       "book_id": string   // 对应返回的id 
 }
 ```
 
