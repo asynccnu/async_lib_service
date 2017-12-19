@@ -81,6 +81,11 @@ async def async_renew_book(request,s,captcha):
     bar_code = data['bar_code']
     check = data['check']
     res = await renew_book(cookie,captcha,bar_code,check) 
+    
+    if res == 400 or res == 403 or res == 406:
+        return Response(body = '{}',
+                    content_type = 'application/json', status = res)
+
     return json_response(res)
     
 
