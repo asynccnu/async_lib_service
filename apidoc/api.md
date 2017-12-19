@@ -141,10 +141,10 @@ page: int
 
 ```
 {
-	"book": string,
+   "book": string,
        "author": string,
-       "bid": string,
-       "book_id": string
+       "bid": string,     // 对应返回的bid
+       "book_id": string // 对应返回的id
 }
 ``` 
 
@@ -152,10 +152,10 @@ page: int
 
 ```
 {
-	"book": string,
+   "book": string,
        "author": string,
-       "bid": string,
-       "book_id": string
+       "bid": string,    // 对应返回的bid
+       "book_id": string   // 对应返回的id 
 }
 ```
 
