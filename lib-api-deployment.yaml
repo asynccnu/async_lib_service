@@ -1,0 +1,33 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: lib-api
+  name: lib-api
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: lib-api
+    spec:
+      containers:
+      - args:
+        - gunicorn
+        - wsgi:app
+        - -k
+        - aiohttp.worker.GunicornWebWorker
+        - -b
+        - 0.0.0.0:1295
+        - --log-level
+        - DEBUG
+        image: asynclibservice_lib_api:latest
+        name: lib-api
+        ports:
+        - containerPort: 1295
+        resources: {}
+      restartPolicy: Always
+status: {}

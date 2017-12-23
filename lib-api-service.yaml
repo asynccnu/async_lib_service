@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: lib-api
+  name: lib-api
+spec:
+  type: NodePort
+  ports:
+  - name: "1295"
+    port: 1295
+    targetPort: 1295
+  selector:
+    io.kompose.service: 1295-api
+status:
+  loadBalancer: {}
