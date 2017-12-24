@@ -35,7 +35,7 @@ async def test():
     #print(data)
 
     print('\r\n\r\n' + "[TEST]Start test GetInof..." + '\r\n\r\n')
-    data = await get_book('0000035843')
+    data = await get_book('0000546368')
     pprint(data)
 
 async def search_books(keyword):
@@ -192,6 +192,8 @@ async def get_book(id):
                 async with dsession.get(douban) as dresp:
                     rd = await dresp.json()
                     intro = rd.get("summary")
+            if intro == None:
+                intro = "null"
             
             #Booklist
             booklist = []
@@ -205,17 +207,28 @@ async def get_book(id):
                     bid = _book.td.text
                     tid = _book.td.next_sibling.next_sibling.string
                     lit = _book.text.split()
+                    print("-----")
+                    print(lit)
+                    print("-----")
                     #垃圾代码等待别人拯救TAT
                     try:
                         if lit[-1] == "可借":
                             status = "可借"
                             date = "可借"
                             room = lit[-2]
-                        elif lit[-2] == "正常验收":
-                            status = "正常验收"
+                        elif lit[-2] == "可借":
+                            status = "可借"
+                            date = "可借"
+                            room = lit[-3]
+                        elif lit[-2] == "正常验收" or lit[-2]=="在编":
+                            status = lit[-2]
                             date = "无法借阅"
                             room = lit[-1]
-                        elif lit[-1] == "阅览" or lit[-1] == "保留本" or lit[-1] == "剔旧报废" or lit[-1] == "非可借":
+                        elif lit[-1] == "保留本":
+                            status = lit[-1]
+                            date = "保留本"
+                            room = lit[-2]
+                        elif lit[-1] == "阅览" or lit[-1] == "剔旧报废" or lit[-1] == "非可借":
                             status = lit[-1]
                             date = "不可借阅"
                             room = lit[3]
@@ -228,7 +241,7 @@ async def get_book(id):
                             status = "借出"
                             datestart = lit[-2].find("：") + 1
                             date = lit[-2][datestart:]
-                            room = lit[3]
+                            room = lit[2]
                         #elif(len(lit) == 5):
                         #    status = lit[3]
                         #    date = "不可借阅"
@@ -244,6 +257,7 @@ async def get_book(id):
                             status = lit[-1]
                             room = lit[-2]
                             tid = tid
+                            date = ""
                             #booklist.append({"status": lit[-1], "room": lit[-2], "tid": tid})
 
                     except:
