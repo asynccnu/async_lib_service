@@ -5,6 +5,7 @@ import aiohttp
 import time
 import datetime
 from bs4 import BeautifulSoup
+from pprint import pprint
 
 lib_login_test_url = "http://202.114.34.15/reader/redr_info.php"
 lib_search_url = "http://202.114.34.15/opac/openlink.php"
@@ -21,21 +22,21 @@ headers = {
 #'bar_code': 'T112009478', 'check': 'F0780D4E', 
 
 async def test():
-    print('\r\n\r\n' + "[TEST]Start test SearchBooks..." + '\r\n\r\n')
-    data = await search_books("亲爱的三毛")
-    print(data)
+    #print('\r\n\r\n' + "[TEST]Start test SearchBooks..." + '\r\n\r\n')
+    #data = await search_books("亲爱的三毛")
+    #print(data)
 
-    print('\r\n\r\n' + "[TEST]Start test BookMe..." + '\r\n\r\n')
-    data = await book_me(cookie)
-    print(data)
+    #print('\r\n\r\n' + "[TEST]Start test BookMe..." + '\r\n\r\n')
+    #data = await book_me(cookie)
+    #print(data)
 
-    print('\r\n\r\n' + "[TEST]Start test ReNew..." + '\r\n\r\n')
-    data = await renew_book(cookie, 'ZZEP', 'T112009478', 'F0780D4E')
-    print(data)
+    #print('\r\n\r\n' + "[TEST]Start test ReNew..." + '\r\n\r\n')
+    #data = await renew_book(cookie, 'ZZEP', 'T112009478', 'F0780D4E')
+    #print(data)
 
     print('\r\n\r\n' + "[TEST]Start test GetInof..." + '\r\n\r\n')
-    data = await get_book('0001567068')
-    print(data)
+    data = await get_book('0000035843')
+    pprint(data)
 
 async def search_books(keyword):
     search_url = lib_search_url
@@ -167,7 +168,7 @@ async def get_book(id):
                 headers = headers) as session:
         async with session.get(detail_url) as resp:
             thehtml = await resp.text()
-            soup = BeautifulSoup(thehtml, 'lxml')
+            soup = BeautifulSoup(thehtml, 'html5lib')
             alldd = soup.find_all('dd')
             if len(alldd) == 2:
                 return {
@@ -195,6 +196,7 @@ async def get_book(id):
             #Booklist
             booklist = []
             _booklist = soup.find(id = 'tab_item').find_all('tr', class_ = 'whitetext')
+
             #可能没有馆藏图书
             if "此书刊可能正在订购中或者处理中" in str(_booklist[0]):
                 bid = _booklist[0].td.text
@@ -203,14 +205,60 @@ async def get_book(id):
                     bid = _book.td.text
                     tid = _book.td.next_sibling.next_sibling.string
                     lit = _book.text.split()
-                    if '-' in lit[-1]:
-                        date = lit[-1][-10:]
-                        status = lit[-1][:2]
-                        booklist.append({
-                            "status": status, "room": lit[-2], "bid": bid,
-                            "tid": tid, "date": date })
-                    else:
-                        booklist.append({"status": lit[-1], "room": lit[-2], "tid": tid})
+                    #垃圾代码等待别人拯救TAT
+                    try:
+                        if lit[-1] == "可借":
+                            status = "可借"
+                            date = "可借"
+                            room = lit[-2]
+                        elif lit[-2] == "正常验收":
+                            status = "正常验收"
+                            date = "无法借阅"
+                            room = lit[-1]
+                        elif lit[-1] == "阅览" or lit[-1] == "保留本" or lit[-1] == "剔旧报废" or lit[-1] == "非可借":
+                            status = lit[-1]
+                            date = "不可借阅"
+                            room = lit[3]
+                        elif "已还" in lit[4] and "正在上架" in lit[4]:
+                            status = "已还"
+                            date = "正在上架"
+                            room = lit[3]
+
+                        elif "借出" in lit[-2] and "应还日期" in lit[-2]:
+                            status = "借出"
+                            datestart = lit[-2].find("：") + 1
+                            date = lit[-2][datestart:]
+                            room = lit[3]
+                        #elif(len(lit) == 5):
+                        #    status = lit[3]
+                        #    date = "不可借阅"
+                        #    room = lit[2]
+                        elif '-' in lit[-1]:
+                            date = lit[-1][-10:]
+                            status = lit[-1][:2]
+                            room = lit[-2]
+                            #booklist.append({
+                            #    "status": status, "room": lit[-2], "bid": bid,
+                            #    "tid": tid, "date": date })
+                        else:
+                            status = lit[-1]
+                            room = lit[-2]
+                            tid = tid
+                            #booklist.append({"status": lit[-1], "room": lit[-2], "tid": tid})
+
+                    except:
+                        status = lit[-1]
+                        room = lit[-2]
+                        tid = tid
+
+                    booklist.append({
+                        "status":status,
+                        "room":room,
+                        "bid":bid,
+                        "tid":tid,
+                        "date":date
+                    })
+
             return ({
                     'bid':bid, 
                     'book':book,
