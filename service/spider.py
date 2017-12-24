@@ -168,7 +168,7 @@ async def get_book(id):
                 headers = headers) as session:
         async with session.get(detail_url) as resp:
             thehtml = await resp.text()
-            soup = BeautifulSoup(thehtml, 'html5lib')
+            soup = BeautifulSoup(thehtml, 'lxml')
             alldd = soup.find_all('dd')
             if len(alldd) == 2:
                 return {
