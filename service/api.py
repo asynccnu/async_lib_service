@@ -32,7 +32,10 @@ async def async_search_books(request):
     book_info_list = await search_books(keyword) 
     page_info_list = _Pagination(book_info_list,page,pages)  
     res = {
-        'max' : page_info_list.max_page, 
+        'meta' : { 
+            'max' : page_info_list.max_page, 
+            'per_page' : 20 
+        },  
         'result' :  book_info_list[(page-1)*pages:page*pages]
     }    
     return json_response(res)
