@@ -6,7 +6,7 @@
 **URL Params:**
 ```
 keyword: string 
-page: int 
+page: int  //没有默认为1
 ```
 
 **POST Data: None**
@@ -14,7 +14,10 @@ page: int
 **RETURN Data:**
 ```
 {
-	"max" : int // 最大页数 
+	"meta":{
+	    "max" : int // 最大页数 
+	    "per_page" :int //每页书数
+	},
 	"result" : [{
 				
             "book":  string // 书名
@@ -30,7 +33,6 @@ page: int
 **Status Code :**
 ```
 200 // 成功 
-401 // 图书不存在
 ```
 
 *** 
@@ -56,6 +58,8 @@ page: int
             "status": string // 状态
             "room": string // 在哪,
             "tid":  string 
+            "bid":"fff",
+            "date": 若未可借为 "YYYY-MM-DD" 否则为 string 
         }
     ]
 }
@@ -100,7 +104,8 @@ page: int
 ## 我的图书
 |URL|Header|Method|
 | --- | -- | -- |
-|/api/lib/me/| s:stirng(Phpsessid) | GET | 
+|/api/lib/me/| s:stirng | GET | 
+->**s为Phpsessid**
 
 **URL Params: None**
 
@@ -222,4 +227,5 @@ page: int
 200 // 成功 
 404 // 没有关注图书,不能取消关注 
 ```
+
 

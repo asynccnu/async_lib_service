@@ -27,8 +27,17 @@ async def async_search_books(request):
         keys.append(item.split('=')[0])
         values.append(item.split('=')[1])
     args = dict(zip(keys, values))
-    keyword = args['keyword'] 
-    page = int(args['page']) or 1 
+
+    if "keyword" not in args:
+        return json_response({
+                "msg":"need keyword"
+            })
+    if "page" not in args:
+        page = 1
+    else:
+        page = int(args['page'])
+    keyword = args["keyword"]
+    
     book_info_list = await search_books(keyword) 
     page_info_list = _Pagination(book_info_list,page,pages)  
     res = {

@@ -35,7 +35,7 @@ async def test():
     #print(data)
 
     print('\r\n\r\n' + "[TEST]Start test GetInof..." + '\r\n\r\n')
-    data = await get_book('0000546368')
+    data = await get_book('0001419574')
     pprint(data)
 
 async def search_books(keyword):
@@ -168,7 +168,7 @@ async def get_book(id):
                 headers = headers) as session:
         async with session.get(detail_url) as resp:
             thehtml = await resp.text()
-            soup = BeautifulSoup(thehtml, 'lxml')
+            soup = BeautifulSoup(thehtml)
             alldd = soup.find_all('dd')
             if len(alldd) == 2:
                 return {
@@ -210,60 +210,49 @@ async def get_book(id):
                     print("-----")
                     print(lit)
                     print("-----")
-                    #垃圾代码等待别人拯救TAT
+                    #状态共有 可借 无法借阅 保留本 已还 借出 五个
                     try:
-                        if lit[-1] == "可借":
+                        if lit[-1] == "可借" or lit[-2] == "可借":
                             status = "可借"
                             date = "可借"
-                            room = lit[-2]
-                        elif lit[-2] == "可借":
-                            status = "可借"
-                            date = "可借"
-                            room = lit[-3]
-                        elif lit[-2] == "正常验收" or lit[-2]=="在编":
-                            status = lit[-2]
+                            if lit[-1] == "可借":
+                                room = lit[-2]
+                            elif lit[-2] == "可借":
+                                room = lit[-3]
+                        elif lit[-2] == "正常验收" or lit[-2]=="在编" or lit[-1] == "阅览" or lit[-1] == "剔旧报废" or lit[-1] == "非可借":
+                            status = "无法借阅"
                             date = "无法借阅"
-                            room = lit[-1]
+                            if lit[-2] == "正常验收" or lit[-2]=="在编":
+                                room = lit[-1]
+                            elif lit[-1] == "阅览" or lit[-1] == "剔旧报废" or lit[-1] == "非可借":
+                                room = lit[3]
                         elif lit[-1] == "保留本":
                             status = lit[-1]
                             date = "保留本"
                             room = lit[-2]
-                        elif lit[-1] == "阅览" or lit[-1] == "剔旧报废" or lit[-1] == "非可借":
-                            status = lit[-1]
-                            date = "不可借阅"
-                            room = lit[3]
                         elif "已还" in lit[4] and "正在上架" in lit[4]:
                             status = "已还"
                             date = "正在上架"
                             room = lit[3]
-
                         elif "借出" in lit[-2] and "应还日期" in lit[-2]:
                             status = "借出"
                             datestart = lit[-2].find("：") + 1
                             date = lit[-2][datestart:]
                             room = lit[2]
-                        #elif(len(lit) == 5):
-                        #    status = lit[3]
-                        #    date = "不可借阅"
-                        #    room = lit[2]
                         elif '-' in lit[-1]:
                             date = lit[-1][-10:]
                             status = lit[-1][:2]
                             room = lit[-2]
-                            #booklist.append({
-                            #    "status": status, "room": lit[-2], "bid": bid,
-                            #    "tid": tid, "date": date })
                         else:
                             status = lit[-1]
                             room = lit[-2]
                             tid = tid
                             date = ""
-                            #booklist.append({"status": lit[-1], "room": lit[-2], "tid": tid})
-
                     except:
                         status = lit[-1]
                         room = lit[-2]
                         tid = tid
+                        date = "error"
 
                     booklist.append({
                         "status":status,
