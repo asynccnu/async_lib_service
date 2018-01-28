@@ -6,7 +6,7 @@
 **URL Params:**
 ```
 keyword: string 
-page: int  //没有默认为1
+page: int  //可选，默认为1
 ```
 
 **POST Data: None**
@@ -23,9 +23,9 @@ page: int  //没有默认为1
             "book":  string // 书名
             "author":  string // 作者
             "publisher": string //出版社
-            "bid": string 
+            "bid": string // 作用未知，待补充
             "bookurl": string 
-            "id": string 
+            "id": string
 	}]
 }
 ```
@@ -49,17 +49,17 @@ page: int  //没有默认为1
 **RETURN Data:**
 ```
 {
-    "bid": string ,
-    "book": string ,
-    "author": string,
-    "intro": string,
-    "books": [
+    "bid": string , // 作用未知，待补充
+    "book": string , // 书名
+    "author": string, // 作者
+    "intro": string, // 介绍，来源为豆瓣API。可能为空字符串
+    "books": [ // books数组表示所有馆藏书的信息列表，如果这本书还在上架过程，这个数组可能为空数组([])
         {
-            "status": string // 状态
-            "room": string // 在哪,
-            "tid":  string 
-            "bid":"fff",
-            "date": 若未可借为 "YYYY-MM-DD" 否则为 string 
+            "status": string // 状态, 一个enum，可能有值有 [可借|借出|无法借阅|保留本|正在上架|不可借阅] 如果这本书在订购中或者处理中可能还有更多的值，客户端可以default处理为不可借状态
+            "room": string // 图书位置，如"5F__中文图书借阅室(五)"
+            "tid":  string // 作用未知，待补充
+            "bid": string, // 作用未知，待补充
+            "date": string, // 若status为借出，date为归还日期，即"YYYY-MM-DD"，否则为空字符串""
         }
     ]
 }
