@@ -168,7 +168,7 @@ async def get_book(id):
                 headers = headers) as session:
         async with session.get(detail_url) as resp:
             thehtml = await resp.text()
-            soup = BeautifulSoup(thehtml)
+            soup = BeautifulSoup(thehtml, 'lxml')
             alldd = soup.find_all('dd')
             if len(alldd) == 2:
                 return {
@@ -193,7 +193,7 @@ async def get_book(id):
                     rd = await dresp.json()
                     intro = rd.get("summary")
             if intro == None:
-                intro = "null"
+                intro = ""
             
             #Booklist
             booklist = []
@@ -207,32 +207,29 @@ async def get_book(id):
                     bid = _book.td.text
                     tid = _book.td.next_sibling.next_sibling.string
                     lit = _book.text.split()
-                    print("-----")
-                    print(lit)
-                    print("-----")
-                    #状态共有 可借 无法借阅 保留本 已还 借出 五个
+                    #状态共有 可借 无法借阅 保留本 已还 借出
                     try:
                         if lit[-1] == "可借" or lit[-2] == "可借":
                             status = "可借"
-                            date = "可借"
+                            date = ""
                             if lit[-1] == "可借":
                                 room = lit[-2]
                             elif lit[-2] == "可借":
                                 room = lit[-3]
                         elif lit[-2] == "正常验收" or lit[-2]=="在编" or lit[-1] == "阅览" or lit[-1] == "剔旧报废" or lit[-1] == "非可借":
                             status = "无法借阅"
-                            date = "无法借阅"
+                            date = ""
                             if lit[-2] == "正常验收" or lit[-2]=="在编":
                                 room = lit[-1]
                             elif lit[-1] == "阅览" or lit[-1] == "剔旧报废" or lit[-1] == "非可借":
                                 room = lit[3]
                         elif lit[-1] == "保留本":
                             status = lit[-1]
-                            date = "保留本"
+                            date = ""
                             room = lit[-2]
                         elif "已还" in lit[4] and "正在上架" in lit[4]:
                             status = "已还"
-                            date = "正在上架"
+                            date = ""
                             room = lit[3]
                         elif "借出" in lit[-2] and "应还日期" in lit[-2]:
                             status = "借出"
@@ -252,14 +249,14 @@ async def get_book(id):
                         status = lit[-1]
                         room = lit[-2]
                         tid = tid
-                        date = "error"
+                        date = ""
 
                     booklist.append({
                         "status":status,
                         "room":room,
                         "bid":bid,
                         "tid":tid,
-                        "date":date
+                        "date":date,
                     })
 
             return ({
