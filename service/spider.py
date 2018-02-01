@@ -146,7 +146,10 @@ async def renew_book(s, captcha, bar_code, check):
             cookies = s, headers = headers) as session:
         async with session.post(renew_url, data = payload) as resp:
             html = await resp.text()
-            res_color = BeautifulSoup(html, 'lxml').find('font')['color']
+            try :
+                res_color = BeautifulSoup(html, 'lxml').find('font')['color']
+            except TypeError :                                      # 验证码错误，返回是一句话"验证码错误"，无法解析
+                return 400
             if res_color == 'green':
                 res_code = 200
             else:
