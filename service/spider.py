@@ -102,8 +102,8 @@ async def book_me(s):
             my_book_list = []
             #最后两个是垃圾信息，一个是二维码一个是无用信息
             
-            if len(_my_book_list) >= 2 : 
-                _my_book_list = _my_book_list[0:2]
+            # 去除最后两个
+            _my_book_list = _my_book_list[0:len(_my_book_list)-2]
 
             for index, _book in enumerate(_my_book_list):
                 text = _book.text.split('\n')
