@@ -162,7 +162,7 @@ async def renew_book(s, captcha, bar_code, check):
                     res_code = 403
                 else:
                     res_code = 400
-            print(res_string + '-> ' + str(res_code))
+                print(res_string + '-> ' + str(res_code))
             return res_code
 
 async def get_book(id):
