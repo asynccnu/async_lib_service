@@ -1,0 +1,314 @@
+swagger: '2.0'
+
+#################################INFO START##########################
+info:
+  description: |
+    图书馆服务
+  version: 1.0.0
+  title: Library Service
+#  termsOfService: http://swagger.io/terms/
+  contact:
+    email: 3480437308@qq.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+###############################INFO END#################################
+
+host: ccnubux.muxixyz.com
+basePath: /api/lib/
+schemes:
+ - https
+ - http
+######################TAG START#######################################
+# tags:
+# - name: auth
+  # description: 学而鉴权
+
+
+##########################TAG END######################################
+
+###########################AUTH START#################################
+
+
+
+
+########################PATH START####################################
+paths:
+  /search/:
+    get:
+      summary: 搜索图书
+      description:
+      produces:
+      - application/json
+      consumes:
+      - application/json
+      parameters:
+      - in: query
+        name: keyword
+        description: 需要查询的关键字
+        required: true
+      - in: query
+        name: page
+        description: 获取的页数，可选参数，默认为1
+        required: false
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            properties:
+              meta:
+                $ref: "#/definitions/Meta"
+              result:
+                $ref: "#/definitions/Result"
+  /detail/{id}/:
+    get:
+      summary: 查询某本图书详细信息
+      description:
+      produces:
+      - application/json
+      consumes:
+      - application/json
+      parameters:
+      - in: path
+        name: id
+        description: 图书id
+        required: true
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            properties:
+              bid:
+                type: string
+              book:
+                type: string
+              author:
+                type: string
+              intro:
+                type: string
+              books:
+                $ref: "#/definitions/Books"
+  /renew/:
+    post:
+      summary: 续借图书
+      description:
+      produces:
+      - application/json
+      consumes:
+      - application/json
+      parameters:
+      - in: body
+        name: POST
+        schema:
+          type: object
+          properties:
+            bar_code:
+              type: string
+            check:
+              type: string
+        required: true
+      - in: header
+        name: s
+        required: true
+        description: PhpSessid
+      - in: header
+        name: captcha
+        required: true
+        description: 验证码
+      responses:
+        200:
+          description: OK
+        406:
+          description: 时间太早，不能续借
+        403:
+          description: 超过最大续借次数，不能续借
+        400:
+          description: 其他原因不能续借
+  /me/:
+    get:
+      summary: 我的图书
+      description:
+      produces:
+      - application/json
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: s
+        required: true
+        description: PhpSessid
+      responses:
+        401:
+          desription: Cookie失效
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              properties:
+                book:
+                  type: string
+                author:
+                  type: string
+                itime:
+                  type: string
+                otime:
+                  type: string
+                time:
+                  type: integer
+                room:
+                  type: string
+                bar_code:
+                  type: string
+                check:
+                  type: string
+                id:
+                  type: string
+
+  /create/:
+    post:
+      summary: 添加关注图书
+      description:
+      produces:
+      - application/json
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: sid
+        required: true
+        description: 学号
+      - in: body
+        name: POST DATA
+        required: true
+        schema:
+          type: object
+          properties:
+            book:
+              type: string
+            author:
+              type: string
+            bid: 
+              type: string
+            book_id:
+              type: string
+      responses:
+        401:
+          description: 已关注，不能再次关注
+        200:
+          description: OK
+          schema:
+            type: object
+            properties:
+              book:
+                type: string
+              author:
+                type: string
+              bid: 
+                type: string
+              book_id:
+                type: string
+
+  /attention/:
+    get:
+      summary: 获取所有关注
+      description:
+      produces:
+      - application/json
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: sid
+        required: true
+        description: 学号
+      responses:
+        404:
+          description: 没有关注图书
+      　200:
+          description: ok
+          schema:
+            type: "array"
+            items:
+              properties:
+                bid:
+                  type: string
+                book:
+                  type: string
+                id:
+                  type: string
+                author:
+                  type: string
+                avb:
+                  type: integer
+  
+  /delete/:
+    delete:
+      summary: 取消关注图书
+      description:
+      produces:
+      - application/json
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: sid
+        required: true
+        description: 学号
+      - in: body
+        name: POST DATA
+        required: true
+        schema:
+          type: object
+          properties:
+            id:
+            type: string
+      responses:
+        200:
+          description: OK
+        404:
+          description: 没有关注图书，不能取消关注
+
+definitions:
+  Meta:
+    type: "object"
+    properties:
+      max:
+        type: "integer"
+      per_page:
+        type: "integer"
+
+  Result:
+    type: "array"
+    items:
+      properties:
+        book:
+          type: string
+        author:
+          type: string
+        publisher:
+          type: string
+        bid:
+          type: string
+        bookurl:
+          type: string
+        id:
+          type: string
+  
+  Books:
+    type: "array"
+    items:
+      properties:
+        status:
+          type: string
+        room:
+          type: string
+        tid:
+          type: string
+        bid:
+          type: string
+        date:
+          type: string
+  
