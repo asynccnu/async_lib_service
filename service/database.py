@@ -8,7 +8,7 @@ MONGODB_PASSWORD = os.getenv('MONGODB_PASSWORD') or "nopassword"
 
 async def db_setup():
     # client = AsyncIOMotorClient(MONGODB_HOST, MONGODB_PORT)
-    mongo_uri = "mongodb://{}:{}@{}:{}".format(MONGODB_USERNAME, MONGODB_PASSWORD, MONGODB_HOST, MONGODB_PORT)
+    mongo_uri = "mongodb://{}:{}@{}:{}".format(MONGODB_USERNAME, MONGODB_PASSWORD, MONGOHOST, MONGOPORT)
     client = AsyncIOMotorClient(mongo_uri)
     attention = client['attention']
     attentioncol = attention['attentiondb']
