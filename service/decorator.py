@@ -1,7 +1,7 @@
-import json
 import functools
-import aiohttp
-from aiohttp.web import Response, json_response
+
+from aiohttp.web import json_response
+
 
 def require_s(f):
     @functools.wraps(f)

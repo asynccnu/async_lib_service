@@ -1,11 +1,11 @@
-import json
-import re
 import asyncio
-import aiohttp
-import time
 import datetime
-from bs4 import BeautifulSoup
+import re
+import time
 from pprint import pprint
+
+import aiohttp
+from bs4 import BeautifulSoup
 
 lib_login_test_url = "http://202.114.34.15/reader/redr_info.php"
 lib_search_url = "http://202.114.34.15/opac/openlink.php"
@@ -19,7 +19,7 @@ headers = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36",
 }
 
-#'bar_code': 'T112009478', 'check': 'F0780D4E', 
+#'bar_code': 'T112009478', 'check': 'F0780D4E',
 
 async def test():
     #print('\r\n\r\n' + "[TEST]Start test SearchBooks..." + '\r\n\r\n')
@@ -41,16 +41,16 @@ async def test():
 async def search_books(keyword):
     search_url = lib_search_url
     post_data = {
-        'strSearchType': 'title', 
+        'strSearchType': 'title',
         'match_flag': 'forward',
         'historyCount': '1',
         'strText': keyword,
         'doctype': 'ALL',
         'displaypg': '100',
-        'showmode': 'list', 
+        'showmode': 'list',
         'sort': 'CATA_DATE',
         'orderby': 'desc',
-        'dept': 'ALL' 
+        'dept': 'ALL'
     }
     async with aiohttp.ClientSession(cookie_jar = aiohttp.CookieJar(unsafe = True), headers = headers) as session:
         async with session.post(search_url, data = post_data) as resp:
@@ -65,7 +65,11 @@ async def search_books(keyword):
                 if book_info:
                     book = book_info.find('a', href=re.compile('item.php*')).string
                     marc_no_link = book_info.find('a').get('href')
-                    marc_no = marc_no_link.split('=')[-1]
+                    marc_no = '0'
+                    match_obejct = re.match('.*marc_no=(.*)&list.*', marc_no_link)
+                    if match_obejct is not None:
+                        marc_no = match_obejct.group(1)
+
                     book_info_list.append({
                         'book' : book,
                         'author' : ' '.join(book_info.p.text.split()[2:-4]),
@@ -85,7 +89,7 @@ async def book_me(s):
     async with aiohttp.ClientSession(cookie_jar = aiohttp.CookieJar(unsafe = True), cookies = s, headers = headers) as session:
         async with session.get(me_url) as resp:
             html = await resp.text()
-            
+
             # 跳转到统一认证服务，401
             if "统一身份认证服务" in str(html):
                 return 401
@@ -101,7 +105,7 @@ async def book_me(s):
             _my_book_list = soup.find_all('tr')[1:]
             my_book_list = []
             #最后两个是垃圾信息，一个是二维码一个是无用信息
-            
+
             # 去除最后两个
             _my_book_list = _my_book_list[0:len(_my_book_list)-2]
 
@@ -131,7 +135,7 @@ async def book_me(s):
                     "check": check,
                     "id": bids[index]
                         })
-        return my_book_list 
+        return my_book_list
 
 async def renew_book(s, captcha, bar_code, check):
     renew_url = lib_renew_url
@@ -187,7 +191,7 @@ async def get_book(id):
                 author = alldd[0].text.split("/")[1]
             except:
                 author = ''
-            
+
             #获取豆瓣简介
             isbn = alldd[2].text.split("/")[0]
             douban = douban_url % isbn
@@ -197,7 +201,7 @@ async def get_book(id):
                     intro = rd.get("summary")
             if intro == None:
                 intro = ""
-            
+
             #Booklist
             booklist = []
             _booklist = soup.find(id = 'tab_item').find_all('tr', class_ = 'whitetext')
@@ -263,7 +267,7 @@ async def get_book(id):
                     })
 
             return ({
-                    'bid':bid, 
+                    'bid':bid,
                     'book':book,
                     'author':author,
                     'intro':intro,
